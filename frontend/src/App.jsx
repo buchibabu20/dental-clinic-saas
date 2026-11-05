@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import './App.css'
 import Patients from './components/Patients'
+import Appointments from './components/Appointments'
+
 
 function App() {
   const [totalPatients, setTotalPatients] = useState(1250)
@@ -168,8 +170,12 @@ function App() {
         </section>
 
         <footer>DentalCare Clinic Management · Dashboard Preview</footer>
-      </main>
-      <Patients />
+            </main>
+
+      <div className="data-sections">
+        <Patients />
+        <Appointments />
+      </div>
     </div>
   )
 }

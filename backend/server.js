@@ -51,6 +51,8 @@ app.post('/api/patients', async (req, res) => {
   }
 })
 
+
+
 // Delete a patient
 app.delete('/api/patients/:id', async (req, res) => {
   try {
@@ -97,6 +99,46 @@ app.post('/api/appointments', async (req, res) => {
 
     res.status(201).json(savedAppointment)
   } catch (error) {
+    console.error('Appointment booking error:', error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
+// Update an appointment
+app.put('/api/appointments/:id', async (req, res) => {
+  try {
+    console.log('PUT appointment route reached!')
+
+    const updatedAppointment = await Appointment.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    )
+
+    if (!updatedAppointment) {
+      return res.status(404).json({ message: 'Appointment not found' })
+    }
+
+    res.status(200).json(updatedAppointment)
+  } catch (error) {
+    console.error('Appointment update error:', error)
+    res.status(500).json({ message: error.message })
+  }
+})
+
+app.delete('/api/appointments/:id', async (req, res) => {
+  try {
+    const deletedAppointment = await Appointment.findByIdAndDelete(
+      req.params.id
+    )
+
+    if (!deletedAppointment) {
+      return res.status(404).json({ message: 'Appointment not found' })
+    }
+
+    res.status(200).json({ message: 'Appointment deleted successfully' })
+  } catch (error) {
+    console.error('Appointment delete error:', error)
     res.status(500).json({ message: error.message })
   }
 })

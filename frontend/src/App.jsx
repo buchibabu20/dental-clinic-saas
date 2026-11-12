@@ -1,26 +1,105 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 import Patients from './components/Patients'
 import Appointments from './components/Appointments'
+import Billing from './components/Billing'
 
 
 function App() {
-  const [totalPatients, setTotalPatients] = useState(1250)
+  const [activePage, setActivePage] = useState('Dashboard')
+ const [totalPatients, setTotalPatients] = useState(0)
+  const [appointments, setAppointments] = useState([])
+  useEffect(() => {
+  async function fetchAppointments() {
+    try {
+      const response = await fetch(
+        'http://localhost:5000/api/appointments'
+      )
+
+      const data = await response.json()
+
+      setTotalPatients(data.length)
+
+      setAppointments(data)
+    } catch (error) {
+      console.error('Error fetching appointments:', error)
+    }
+  }
+
+  fetchAppointments()
+}, [])
+
+const todayAppointments = appointments.filter((appointment) => {
+  return new Date(appointment.appointmentDate).toDateString() === new Date().toDateString()
+})
+const completedAppointments = todayAppointments.filter((appointment) => {
+  return appointment.status === 'Completed'
+})
   return (
     <div className="app">
       <aside className="sidebar">
         <h2 className="brand">DentalCare</h2>
         <p className="clinic-label">CLINIC MANAGEMENT</p>
 
-        <nav>
-          <a className="nav-link active" href="#dashboard">Dashboard</a>
-          <a className="nav-link" href="#patient-list">Patients</a>
-          <a className="nav-link" href="#appointments">Appointments</a>
-          <a className="nav-link" href="#treatments">Treatments</a>
-          <a className="nav-link" href="#billing">Billing & Payments</a>
-          <a className="nav-link" href="#reports">Reports</a>
-          <a className="nav-link" href="#settings">Settings</a>
-        </nav>
+       
+<nav>
+  <a
+    className={activePage === 'Dashboard' ? 'nav-link active' : 'nav-link'}
+    href="#dashboard"
+    onClick={() => setActivePage('Dashboard')}
+  >
+    Dashboard
+  </a>
+
+  <a
+    className={activePage === 'Patients' ? 'nav-link active' : 'nav-link'}
+    href="#patient-list"
+    onClick={() => setActivePage('Patients')}
+  >
+    Patients
+  </a>
+
+  <a
+    className={activePage === 'Appointments' ? 'nav-link active' : 'nav-link'}
+    href="#appointments"
+    onClick={() => setActivePage('Appointments')}
+  >
+    Appointments
+  </a>
+
+  <a
+    className={activePage === 'Treatments' ? 'nav-link active' : 'nav-link'}
+    href="#treatments"
+    onClick={() => setActivePage('Treatments')}
+  >
+    Treatments
+  </a>
+
+  <a
+    className={activePage === 'Billing' ? 'nav-link active' : 'nav-link'}
+    href="#billing"
+    onClick={() => setActivePage('Billing')}
+  >
+    Billing & Payments
+  </a>
+
+  <a
+    className={activePage === 'Reports' ? 'nav-link active' : 'nav-link'}
+    href="#reports"
+    onClick={() => setActivePage('Reports')}
+  >
+    Reports
+  </a>
+
+  <a
+    className={activePage === 'Settings' ? 'nav-link active' : 'nav-link'}
+    href="#settings"
+    onClick={() => setActivePage('Settings')}
+  >
+    Settings
+  </a>
+</nav>
+
 
         <div className="sidebar-bottom">
           <div className="avatar">DR</div>
@@ -31,7 +110,9 @@ function App() {
         </div>
       </aside>
 
-      <main className="main-content" id="dashboard">
+{activePage === 'Dashboard' && (
+  <main className="main-content" id="dashboard">
+
         <header className="topbar">
           <div>
             <p className="eyebrow">OVERVIEW</p>
@@ -43,35 +124,39 @@ function App() {
           </button>
         </header>
 
-        <section className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-icon blue">P</span>
-            <p>Total Patients</p>
-            <h2>{totalPatients}</h2>
-            <span className="stat-note">Clinic patient records</span>
-          </div>
+        
+<section className="stats-grid">
 
-          <div className="stat-card">
-            <span className="stat-icon green">A</span>
-            <p>Today's Appointments</p>
-            <h2>24</h2>
-            <span className="stat-note">6 appointments remaining</span>
-          </div>
+  <div className="stat-card">
+    <span className="stat-icon blue">P</span>
+    <p>Total Patients</p>
+    <h2>{totalPatients}</h2>
+    <span className="stat-note">Clinic patient records</span>
+  </div>
 
-          <div className="stat-card">
-            <span className="stat-icon purple">T</span>
-            <p>Treatments Completed</p>
-            <h2>18</h2>
-            <span className="stat-note">Today's completed visits</span>
-          </div>
+  <div className="stat-card">
+    <span className="stat-icon green">A</span>
+    <p>Today's Appointments</p>
+    <h2>{todayAppointments.length}</h2>
+    <span className="stat-note">6 appointments remaining</span>
+  </div>
 
-          <div className="stat-card">
-            <span className="stat-icon orange">₹</span>
-            <p>Today's Revenue</p>
-            <h2>₹32,500</h2>
-            <span className="stat-note">Sample dashboard amount</span>
-          </div>
-        </section>
+  <div className="stat-card">
+    <span className="stat-icon purple">T</span>
+    <p>Treatments Completed</p>
+    <h2>{completedAppointments.length}</h2>
+    <span className="stat-note">Today's completed visits</span>
+  </div>
+
+  <div className="stat-card">
+    <span className="stat-icon orange">₹</span>
+    <p>Today's Revenue</p>
+    <h2>₹32,500</h2>
+    <span className="stat-note">Sample dashboard amount</span>
+  </div>
+
+</section>
+
 
         <section className="content-grid">
           <div className="panel" id="appointments">
@@ -83,47 +168,25 @@ function App() {
               <a href="#appointments">View all</a>
             </div>
 
-            <div className="appointment">
-              <div className="time">09:00 AM</div>
-              <div className="patient-avatar">RK</div>
-              <div className="patient-info">
-                <strong>Rahul Kumar</strong>
-                <p>Dental Cleaning</p>
-              </div>
-              <span className="status completed">Completed</span>
-            </div>
+       {todayAppointments.map((appointment) => (
+  <div className="appointment" key={appointment._id}>
+    <div className="time">{appointment.appointmentTime}</div>
 
-            <div className="appointment">
-              <div className="time">10:30 AM</div>
-              <div className="patient-avatar">SP</div>
-              <div className="patient-info">
-                <strong>Sneha Patel</strong>
-                <p>Dental Checkup</p>
-              </div>
-              <span className="status waiting">Waiting</span>
-            </div>
+    <div className="patient-avatar">
+      {appointment.patientName.substring(0, 2).toUpperCase()}
+    </div>
 
-            <div className="appointment">
-              <div className="time">11:30 AM</div>
-              <div className="patient-avatar">AM</div>
-              <div className="patient-info">
-                <strong>Arjun Mehta</strong>
-                <p>Root Canal Consultation</p>
-              </div>
-              <span className="status scheduled">Scheduled</span>
-            </div>
+    <div className="patient-info">
+      <strong>{appointment.patientName}</strong>
+      <p>{appointment.treatment}</p>
+    </div>
 
-            <div className="appointment">
-              <div className="time">12:30 PM</div>
-              <div className="patient-avatar">PD</div>
-              <div className="patient-info">
-                <strong>Priya Das</strong>
-                <p>Teeth Whitening</p>
-              </div>
-              <span className="status scheduled">Scheduled</span>
-            </div>
-          </div>
-
+    <span className={`status ${appointment.status.toLowerCase()}`}>
+      {appointment.status}
+    </span>
+  </div>
+))}
+</div>
           <div className="panel" id="patients">
             <div className="panel-heading">
               <div>
@@ -170,13 +233,14 @@ function App() {
         </section>
 
         <footer>DentalCare Clinic Management · Dashboard Preview</footer>
-            </main>
+    </main>
+)}
+{activePage === 'Patients' && <Patients />}
 
-      <div className="data-sections">
-        <Patients />
-        <Appointments />
+{activePage === 'Appointments' && <Appointments />}
+
+{activePage === 'Billing' && <Billing />}
       </div>
-    </div>
   )
 }
 
